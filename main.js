@@ -1,14 +1,15 @@
+var FPS=60;
 // 創造 img HTML 元素，並放入變數中
 var bgImg = document.createElement("img");
-var enemyIng = document.createElement("img");
-var towerbtnIng = document.createElement("img");
-var towerIng = document.createElement("img");
+var enemyImg = document.createElement("img");
+var towerbtnImg = document.createElement("img");
+var towerImg = document.createElement("img");
 
 // 設定這個元素的要顯示的圖片
 bgImg.src = "images/map.png";
-enemyIng.src  = "images/slime.gif"
-towerbtnIng.src  = "images/tower-btn.png"
-towerIng.src  = "images/tower.png"
+enemyImg.src  = "images/slime.gif"
+towerbtnImg.src  = "images/tower-btn.png"
+towerImg.src  = "images/tower.png"
 // 找出網頁中的 canvas 元素
 var canvas = document.getElementById("game-canvas");
 
@@ -17,26 +18,64 @@ var ctx = canvas.getContext("2d");
 
 function draw(){
 	// 將背景圖片畫在 canvas 上的 (0,0) 位置
+  enemy.move();
   ctx.drawImage(bgImg,0,0);
-  ctx.drawImage(enemyIng,enemy.x,enemy.y)
-  ctx.drawImage(towerbtnIng,640-64,480-68,64,68)
-  ctx.drawImage(towerIng,mouse.x,mouse.y)
+  ctx.drawImage(enemyImg,enemy.x,enemy.y)
+  ctx.drawImage(towerbtnImg,640-64,480-64,64,64)
+  if(isBuilding==true){
+  	ctx.drawImage(towerImg,cursor.x-cursor.x%32,cursor.y-cursor.y%32)
+  }else{
+  	ctx.drawImage(towerImg,tower.x,tower.y)
+  }
 }
 
 // 執行 draw 函式
-setInterval(draw,16)
+setInterval(draw,1000/FPS)
 
 var enemy={
 	x:96,
-	y:480-32
-};
-$("game-canvas").on("mousemove",mousemove);
-function mousemove(event){
-	console.log("x:"+event.offsetX+"y:"+event.offsetY)
-	mouse.x=event.offsetX
-    mouse.y=event.offsetY
-}
-var mouse={
-    x:offsetX,
-    y:offsetY
+	y:448,
+	speedX:0,
+	speedY:-64,
+	move:function(){
+		 this.x=this.x+this.speedX/FPS
+		 this.y=this.y+this.speedY/FPS
 	}
+};
+
+var cursor={
+	x:100,
+	y:200
+}
+
+var tower={
+	x:0,
+    y:0
+}
+
+
+
+
+
+$("#game-canvas").on("mousemove",mousemove);
+function mousemove(event){
+	cursor.x=event.offsetX
+    cursor.y=event.offsetY
+}
+
+var isBuilding=false
+
+$("#game-canvas").on("click",mouseclick);
+function mouseclick(){
+	if (cursor.x>576 && cursor.y>416) {
+		console.log(isBuilding)
+        isBuilding=true
+	} 
+	else{
+		if(isBuilding==true){
+           tower.x=cursor.x-cursor.x%32
+           tower.y=cursor.y-cursor.y%32
+		}
+      isBuilding=false
+	}
+}
