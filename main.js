@@ -1,4 +1,5 @@
 var FPS=60;
+var clock=0
 // 創造 img HTML 元素，並放入變數中
 var bgImg = document.createElement("img");
 var enemyImg = document.createElement("img");
@@ -17,10 +18,20 @@ var canvas = document.getElementById("game-canvas");
 var ctx = canvas.getContext("2d");
 
 function draw(){
+	clock++;
+	if((clock%80)==0){
+		var newEnemy=new Enemy();
+		enemies.push(newEnemy);
+	}
 	// 將背景圖片畫在 canvas 上的 (0,0) 位置
-  enemy.move();
+  
   ctx.drawImage(bgImg,0,0);
-  ctx.drawImage(enemyImg,enemy.x,enemy.y)
+  for(var i=0;i<enemies.length;i++){
+  	enemies[i].move();
+  	ctx.drawImage(enemyImg,enemies[i].x,enemies[i].y)
+    
+  }
+ 
   ctx.drawImage(towerbtnImg,640-64,480-64,64,64)
   if(isBuilding==true){
   	ctx.drawImage(towerImg,cursor.x-cursor.x%32,cursor.y-cursor.y%32)
@@ -38,21 +49,22 @@ var enemyPath=[
 	{x:384,y:192},
 	{x:224,y:192},
 	{x:224,y:320},
-	{x:544,y:320},
-	{x:554,y:96},
-]
+	{x:554,y:320},
+    {x:544,y:96}
+];
 
 
-var enemy={
-	x:96,
-	y:448,
-	speedX:0,
-	speedY:-64,
-	path:0,
-	move:function(){
+function Enemy(){
+	this.x=96;
+	this.y=448;
+	this.speedX=0;
+	this.speedY=-64;
+	this.path=0;
+	this.move=function(){
 	    if(isCollided(enemyPath[this.path].x,enemyPath[this.path].y,this.x,this.y,64/FPS,64/FPS)){
          //移動
-         
+         this.x=enemyPath[this.path].x
+         this.y=enemyPath[this.path].y
          //指定
          this.path++
          //方向
@@ -62,8 +74,8 @@ var enemy={
              this.speedY=-64;
          }
          //右
-         if(enemyPath[this.path].x<this.x){
-             this.speedX=-64;
+         if(enemyPath[this.path].x>this.x){
+             this.speedX=64;
              this.speedY=0;
          }
          //下
@@ -72,19 +84,21 @@ var enemy={
          	 this.speedY=64;
          }
          //左
-         if(enemyPath[this.path].x>this.x){
-         	 this.speedX=64;
+         if(enemyPath[this.path].x<this.x){
+         	 this.speedX=-64;
              this.speedY=0;
          } 
          //修改    
-	     else{
+	     
+	    }else{
             this.x=this.x+this.speedX/FPS
 		    this.y=this.y+this.speedY/FPS
 	     	 }
-	    }
     }
 }
 
+var enemies =[];
+ 
 var cursor={
 	x:100,
 	y:200
